@@ -5,13 +5,14 @@ body, html {
   justify-content: center;
   align-items: center;
   font-family: var(--font-sans);
-  overflow: hidden;
+  overflow: auto;
   background-color: var(--bg-foam);
 }
 
 .app-container {
-  width: 720px;
-  height: 720px;
+  width: min(100dvw, 720px);
+  min-height: 100dvh;
+  height: auto;
   background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url('images/ImageEcranAccueil.jpg');
   background-size: cover;
   background-position: center;
@@ -52,6 +53,12 @@ body, html {
   font-size: 1.3em;
   padding: 12px 12px;
   border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+@media (max-width: 720px) {
+  #table { width: 94%; }
+  #table th { font-size: 1.05em; padding: 10px 8px; }
+  #table td { font-size: 1.0em; padding: 10px 8px; }
 }
 
 #bienvenue {

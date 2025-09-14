@@ -1,27 +1,24 @@
-body {
-    background-color: var(--bg-foam);
-    font-family: var(--font-sans);
-}
+body { background-color: var(--bg-foam); font-family: var(--font-sans); margin: 0; min-height: 100dvh; display: flex; align-items: center; justify-content: center; }
 
 .appcontainer {
-    width: 720px; /* fixed width, you can also use percentage */
-    height: 720px; /* fixed height, adjust as necessary */
+    width: min(100dvw, 720px);
+    min-height: 100dvh;
+    height: auto;
     background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), url('../images/imageJeu3.jpg') no-repeat center center;
-    position: absolute; /* position it absolutely within the body */
-    left: 50%; /* 50% from the left */
-    top: 50%; /* 50% from the top */
-    transform: translate(-50%, -50%); /* pull back by half its own width and height to center */
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-size: cover;
+    box-shadow: var(--shadow-md);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
-    text-align: center; /* for inline or inline-block elements like text or buttons */
-    display: flex; /* use flexbox */
-    flex-direction: column; /* stack children vertically */
-    justify-content: center; /* center children vertically */
-    align-items: center; /* center children horizontally */
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 10px;
 }
 
 button {
-    width: 250px;
+    width: min(100%, 320px);
     background-color: var(--subway-green);
     border: none;
     color: white;
@@ -29,7 +26,7 @@ button {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: clamp(1rem, 3.5vw, 1.1rem);
     margin: 4px 2px;
     cursor: pointer;
     border-radius: 22px;
@@ -37,10 +34,7 @@ button {
     box-shadow: var(--shadow-sm);
 }
 
-button:hover {
-    background-color: var(--subway-yellow);
-    color: var(--subway-deep);
-}
+button:hover { background-color: var(--subway-yellow); color: var(--subway-deep); }
 
 /* Styles pour le leaderboard */
 #leaderboardJeu1, #leaderboardJeu2, #leaderboardJeu3 {
@@ -50,25 +44,6 @@ button:hover {
     border-radius: 0;
     box-shadow: none;
     margin: 18px auto;
-  }
-  
-  /* Style pour les entrées du leaderboard */
-  #leaderboardJeu1 p, #leaderboardJeu2 p, #leaderboardJeu3 p {
-    margin: 5px 0;
-    padding: 5px;
-    border-radius: 4px; /* Coins légèrement arrondis pour les entrées */
-  }
-  
-  /* Style spécifique pour le premier joueur */
-  #leaderboardJeu1 p:first-child, #leaderboardJeu2 p:first-child, #leaderboardJeu3 p:first-child {
-    background-color: rgba(255, 215, 0, 0.7);
-    color: #000000;
-    font-weight: bold;
-    border: 2px solid var(--subway-yellow);
-    margin-bottom: 10px;
-  }
-  
-  /* Style pour la numérotation (Optionnel) */
-  .leaderboard-ranking {
-    font-weight: bold; /* Texte en gras pour la numérotation */
-  }
+}
+
+.leaderboard-ranking { font-weight: bold; }

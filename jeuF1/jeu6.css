@@ -9,8 +9,9 @@ body, html {
 }
 
 #gameContainer {
-    width: 720px;
-    height: 720px;
+    width: min(100dvw, 720px);
+    min-height: 100dvh;
+    height: auto;
     background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), url('../images/imageJeu6.jpg') no-repeat center center; /* Assurez-vous que le chemin de l'image est correct */
     background-size: cover;
     padding: 20px;
@@ -21,11 +22,12 @@ body, html {
     align-items: center;
     border-radius: 10px;
     position: relative; /* Nécessaire pour positionner les feux absolument par rapport à ce conteneur */
+    overflow: auto;
 }
 
 .start-zone {
-    width: 600px;
-    height: 300px;
+    width: min(92vw, 680px);
+    height: clamp(180px, 40vh, 360px);
     margin: 20px;
     background-color: #ddd; /* A remplacer par l'image */
     border: 1px solid black;
@@ -39,7 +41,7 @@ body, html {
     border: none;
     border-radius: 25px;
     color: white;
-    font-size: 1.2em;
+    font-size: clamp(1rem, 3.5vw, 1.2rem);
     font-weight: bold;
     box-shadow: var(--shadow-sm);
     transition: background-color 0.2s, transform 0.1s;
@@ -75,8 +77,8 @@ body, html {
 }
 
 .light {
-    width: 50px;
-    height: 50px;
+    width: clamp(28px, 6vw, 50px);
+    height: clamp(28px, 6vw, 50px);
     margin-bottom: 10px;
     background-color: black;
     border-radius: 50%;
@@ -112,7 +114,7 @@ body, html {
 }
 
 #timerDisplay {
-    font-size: 2em;
+    font-size: clamp(1.2rem, 6vw, 2rem);
     color: var(--text);
     margin: 20px 0;
 }

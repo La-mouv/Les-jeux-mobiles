@@ -129,3 +129,29 @@ input, select, textarea {
   color: #111;
   font-weight: 800;
 }
+
+/* Mobile tuning: tables less tall and smaller font */
+@media (max-width: 720px) {
+  .lb-box { padding: 6px 8px 10px; }
+  .lb-table thead th { font-size: 0.95em; padding: 8px 6px; }
+  .lb-table tbody td { font-size: 0.95em; padding: 8px 6px; }
+}
+
+/* Orientation lock (mobile only): block landscape with overlay */
+@media (orientation: landscape) and (hover: none) and (pointer: coarse) {
+  body::before {
+    content: 'Tournez votre appareil en mode portrait pour jouer';
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    font-size: 1.1rem;
+    z-index: 100000;
+  }
+  html, body { overflow: hidden; height: 100%; }
+}

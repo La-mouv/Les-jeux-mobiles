@@ -12,28 +12,24 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <script src="firebase-init.js"></script>
     <script src="games.config.js"></script>
+    <link rel="stylesheet" href="chat-widget.css">
 </head>
 <body>
   <div id="playerInfo">
     Pseudo: <span id="playerNameDisplay">sans pseudo</span>
-</div>
-<div id="chatContainer">
-  <div id="chatBox">
-      <ul id="chatMessages"></ul>
-  </div>
-  <input type="text" id="chatInput" placeholder="Tapez un message..." />
 </div>
 
     <div class="games-container">
         <h1 class="page-title">Choix du jeu</h1>
         <div id="games-grid" class="games-grid"></div>
         <div class="grid-actions">
-          <a class="btn" href="hallOfFame/hallOfFame.html">Hall of Fame</a>
-          <a class="btn" href="subStats.html">SUB'Stats</a>
+          <a class="action-card" href="hallOfFame/hallOfFame.html">Hall of Fame</a>
+          <a class="action-card" href="subStats.html">SUB'Stats</a>
         </div>
     </div>
 
     <script src="statsUtil.js"></script>
     <script src="choixDuJeu.js"></script>
+    <script src="chat-widget.js"></script>
 </body>
 </html>

@@ -1,17 +1,23 @@
-body, html {
+html, body {
     height: 100%;
     margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     font-family: var(--font-sans);
-    overflow: hidden;
     background-color: var(--bg-foam);
 }
 
+body {
+    /* Autorise le scroll en mobile et centre sur grands écrans */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100dvh;
+    overflow: auto;
+}
+
 .app-container {
-    width: 720px;
-    height: 720px;
+    width: min(100dvw, 720px);
+    min-height: 100dvh;
+    height: auto;
     background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('images/ImageEcranAccueil.jpg');
     background-size: cover;
     background-position: center;
@@ -60,14 +66,15 @@ button:hover {
 #bienvenue {
     font-family: var(--font-display);
     color: var(--subway-green);
-    font-size: 3em; /* légèrement réduit pour tenir sur une ligne */
+    font-size: clamp(1.8rem, 6vw, 3rem);
     margin-bottom: 30px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
     position: absolute;
     top: 12px; /* plus haut */
     left: 50%;
     transform: translateX(-50%);
-    white-space: nowrap; /* empêcher le retour à la ligne */
+    white-space: normal;
+    text-align: center;
 }
 
 .center-button {

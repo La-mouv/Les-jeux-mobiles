@@ -4,30 +4,62 @@ playerNameDisplay.textContent = playerName;
 const canvas = document.getElementById('drawingCanvas');
 const ctx = canvas.getContext('2d');
 const timerElement = document.getElementById('timer');  // Elément HTML pour le timer
-// Largeur unique du trait pour le guide et le dessin joueur
-const STROKE_WIDTH = 8;
-// Géométrie du sandwich (utilisée pour dessin + scoring)
-const GUIDE = { left: 80, top: 180, width: 340, height: 130 };
+
+// Base (CSS px) — sera mise à l'échelle selon la taille du canvas
+const STROKE_BASE = 8;
 let drawing = false;
-let drawnPoints = [];  // Tableau pour stocker les points dessinés
+let drawnPoints = [];  // Tableau pour stocker les points dessinés (coord. CSS px)
 let timeRemaining = 20;  // Temps restant en secondes
 let timerInterval;
 let clickCount = 0; // SUB'Stats: clics agrégés (mises en contact du crayon)
 
-canvas.addEventListener('mousedown', () => {
+function getRect(){ return canvas.getBoundingClientRect(); }
+function scaleFactor(){ return getRect().width / 500; } // par rapport à design 500x500
+function currentStroke(){ return Math.max(2, STROKE_BASE * scaleFactor()); }
+
+function getPos(e){
+    const r = getRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+function resizeCanvas(){
+    const r = window.devicePixelRatio || 1;
+    const rect = getRect();
+    canvas.width = Math.round(rect.width * r);
+    canvas.height = Math.round(rect.height * r);
+    // Normalise le contexte pour dessiner en unités CSS px
+    ctx.setTransform(r, 0, 0, r, 0, 0);
+    drawGuides();
+}
+
+// Pointer events unifiés
+canvas.addEventListener('pointerdown', (e) => {
+    canvas.setPointerCapture(e.pointerId);
     drawing = true;
     clickCount++;
+    const p = getPos(e);
     ctx.beginPath();
-    
-    // Démarrer le timer lors du premier clic de l'utilisateur
+    ctx.moveTo(p.x, p.y);
+    // Démarrer le timer au premier contact
     if (!timerInterval) {
         timerInterval = setInterval(updateTimer, 1000);
     }
 });
 
-canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('pointermove', (e) => {
+    if(!drawing) return;
+    const p = getPos(e);
+    ctx.lineWidth = currentStroke();
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = 'orange';
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    drawnPoints.push(p);
+});
 
-canvas.addEventListener('mouseup', () => {
+canvas.addEventListener('pointerup', () => {
     drawing = false;
     ctx.closePath();
     clearInterval(timerInterval);  // Arrêter le timer
@@ -46,24 +78,12 @@ function updateTimer() {
     }
 }
 
-function draw(event) {
-    if(!drawing) return;
-    const x = event.clientX - canvas.offsetLeft;
-    const y = event.clientY - canvas.offsetTop;
-    drawnPoints.push({ x, y });  // Stocke les points dessinés
-
-    ctx.lineWidth = STROKE_WIDTH;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = 'orange';
-
-    ctx.lineTo(x, y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-}
+// dessin géré par pointermove (ci-dessus)
 
 function traceGuidePath(g) {
-    const { left, top, width, height } = GUIDE;
+    // Guide proportionnel à la taille du canvas
+    const s = scaleFactor();
+    const left = 80 * s, top = 180 * s, width = 340 * s, height = 130 * s;
     const right = left + width;
     const bottom = top + height;
 
@@ -102,7 +122,7 @@ function drawGuides() {
     // stroke du contour + vague
     ctx.save();
     ctx.strokeStyle = "#000";
-    ctx.lineWidth = STROKE_WIDTH;
+    ctx.lineWidth = currentStroke();
     traceGuidePath(ctx);
     ctx.stroke();
     ctx.restore();
@@ -115,10 +135,8 @@ drawGuides();
 
 const SEGMENTS_PER_CIRCLE = 100;
 // Paramètres scoring plus robustes: couvre + pénalise le hors-piste
-const SCORE_SAMPLE_STEP = 2; // échantillonnage des pixels pour accélérer
-// Rendre le jeu un peu plus exigeant: tolérances plus serrées
-const COVER_TOLERANCE = Math.max(1, Math.floor(STROKE_WIDTH / 3)); // rayon de tolérance pour recouvrement
-const PREC_TOLERANCE = Math.max(1, Math.floor(STROKE_WIDTH / 4));  // rayon pour la précision
+const SCORE_SAMPLE_STEP = 2; // échantillonnage des pixels pour accélérer (CSS px)
+// Tolérances seront mises à l'échelle dynamiquement
 const COVER_WEIGHT = 0.5;  // importance de couvrir le guide
 const PREC_WEIGHT = 0.5;   // importance de ne pas dépasser
 
@@ -129,8 +147,10 @@ function buildGuideMask() {
     const g = c.getContext('2d');
     g.lineJoin = 'round';
     g.lineCap = 'round';
+    const r = window.devicePixelRatio || 1;
+    g.setTransform(r,0,0,r,0,0);
     g.strokeStyle = '#000';
-    g.lineWidth = STROKE_WIDTH;
+    g.lineWidth = currentStroke();
     traceGuidePath(g);
     g.stroke();
     return g.getImageData(0, 0, c.width, c.height);
@@ -143,8 +163,10 @@ function buildPlayerMask() {
     const g = c.getContext('2d');
     g.lineJoin = 'round';
     g.lineCap = 'round';
+    const r = window.devicePixelRatio || 1;
+    g.setTransform(r,0,0,r,0,0);
     g.strokeStyle = '#000';
-    g.lineWidth = STROKE_WIDTH;
+    g.lineWidth = currentStroke();
     if (drawnPoints.length > 1) {
         g.beginPath();
         g.moveTo(drawnPoints[0].x, drawnPoints[0].y);
@@ -175,13 +197,17 @@ function hasAlphaInRadius(img, x, y, r) {
 function calculateScore() {
     const guide = buildGuideMask();
     const player = buildPlayerMask();
+    const r = window.devicePixelRatio || 1;
 
     let guideCount = 0, guideCovered = 0;
     let playerCount = 0, playerOutside = 0;
+    const STEP = Math.max(1, Math.floor(SCORE_SAMPLE_STEP * r));
+    const COVER_TOLERANCE = Math.max(1, Math.floor(currentStroke() / 3 * r));
+    const PREC_TOLERANCE = Math.max(1, Math.floor(currentStroke() / 4 * r));
 
     // Couverture du guide
-    for (let y = 0; y < guide.height; y += SCORE_SAMPLE_STEP) {
-        for (let x = 0; x < guide.width; x += SCORE_SAMPLE_STEP) {
+    for (let y = 0; y < guide.height; y += STEP) {
+        for (let x = 0; x < guide.width; x += STEP) {
             if (alphaAt(guide, x, y) > 0) {
                 guideCount++;
                 if (hasAlphaInRadius(player, x, y, COVER_TOLERANCE)) guideCovered++;
@@ -190,8 +216,8 @@ function calculateScore() {
     }
 
     // Précision: pénaliser les pixels du joueur loin du guide
-    for (let y = 0; y < player.height; y += SCORE_SAMPLE_STEP) {
-        for (let x = 0; x < player.width; x += SCORE_SAMPLE_STEP) {
+    for (let y = 0; y < player.height; y += STEP) {
+        for (let x = 0; x < player.width; x += STEP) {
             if (alphaAt(player, x, y) > 0) {
                 playerCount++;
                 if (!hasAlphaInRadius(guide, x, y, PREC_TOLERANCE)) playerOutside++;
@@ -230,14 +256,10 @@ function redirectToGameOverPage() {
     window.location.href = 'finJeu2.html'; // Assurez-vous que le chemin est correct
 }
 
-function isPointNearSegment(segment) {
-    for (let point of drawnPoints) {
-        const dx = segment.x - point.x;
-        const dy = segment.y - point.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance <= MAX_DISTANCE) {
-            return true;
-        }
-    }
-    return false;
-}
+// utilitaire non utilisé — supprimé
+
+// Redimensionne le canvas à l'init et lors des changements de layout
+const ro = new ResizeObserver(resizeCanvas);
+ro.observe(canvas);
+// Première peinture
+setTimeout(resizeCanvas, 0);

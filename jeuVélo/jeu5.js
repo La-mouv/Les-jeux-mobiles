@@ -50,34 +50,71 @@ function initializeImages() {
 }
 
 function addImage(imageName) {
-    let position;
-    do {
-        position = {
-            left: Math.random() * (gameBoard.offsetWidth - 50),
-            top: Math.random() * (gameBoard.offsetHeight - 50)
-        };
-    } while (isOverlapping(position));
-
+    if (!gameBoard) return;
     const imgElement = document.createElement('img');
     imgElement.src = `./Images/${imageName}`;
     imgElement.classList.add('gameImage');
+    imgElement.style.left = `0px`;
+    imgElement.style.top = `0px`;
+    imgElement.style.visibility = 'hidden';
+    gameBoard.appendChild(imgElement);
+
+    // Mesure réelle une fois dans le DOM
+    const imgWidth = imgElement.offsetWidth || 50;
+    const imgHeight = imgElement.offsetHeight || imgWidth;
+    const maxLeft = Math.max(0, gameBoard.clientWidth - imgWidth);
+    const maxTop = Math.max(0, gameBoard.clientHeight - imgHeight);
+
+    let position;
+    let attempts = 0;
+    do {
+        position = {
+            left: Math.random() * maxLeft,
+            top: Math.random() * maxTop
+        };
+        attempts++;
+        if (attempts > 50) break; // échappe en cas de forte densité
+    } while (isOverlapping(position, imgWidth, imgHeight));
+
     imgElement.style.left = `${position.left}px`;
     imgElement.style.top = `${position.top}px`;
+    imgElement.style.visibility = 'visible';
     imgElement.onclick = () => {
         handleImageClick(imageName);
         clickCount++; // comptabilise le clic sur une image
         levelUp();
     };
-    gameBoard.appendChild(imgElement);
-    imagesOnBoard.push({ imgElement, position });
+    imagesOnBoard.push({ imgElement, position, width: imgWidth, height: imgHeight });
 }
 
-function isOverlapping(newPosition) {
-    return imagesOnBoard.some(({ position }) => {
-        return Math.abs(position.left - newPosition.left) < 50 &&
-               Math.abs(position.top - newPosition.top) < 50;
+function isOverlapping(newPosition, w, h) {
+    const nx1 = newPosition.left, ny1 = newPosition.top;
+    const nx2 = nx1 + w, ny2 = ny1 + h;
+    return imagesOnBoard.some(({ position, width, height }) => {
+        const x1 = position.left, y1 = position.top;
+        const x2 = x1 + (width || 50), y2 = y1 + (height || width || 50);
+        // Test chevauchement rectangles
+        return !(nx2 <= x1 || nx1 >= x2 || ny2 <= y1 || ny1 >= y2);
     });
 }
+
+// Recalage basique lors des changements de taille du board
+const ro = new ResizeObserver(() => {
+    if (!gameBoard) return;
+    imagesOnBoard.forEach(obj => {
+        const img = obj.imgElement;
+        const w = img.offsetWidth || obj.width || 50;
+        const h = img.offsetHeight || obj.height || w;
+        const maxLeft = Math.max(0, gameBoard.clientWidth - w);
+        const maxTop = Math.max(0, gameBoard.clientHeight - h);
+        obj.position.left = Math.min(obj.position.left, maxLeft);
+        obj.position.top = Math.min(obj.position.top, maxTop);
+        img.style.left = `${obj.position.left}px`;
+        img.style.top = `${obj.position.top}px`;
+        obj.width = w; obj.height = h;
+    });
+});
+if (gameBoard) ro.observe(gameBoard);
 
 function handleImageClick(imageName) {
     switch(imageName) {
