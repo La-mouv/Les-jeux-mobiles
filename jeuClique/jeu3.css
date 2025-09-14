@@ -25,8 +25,8 @@ body, html {
 }
 
 #clickArea {
-    width: clamp(160px, 42vw, 240px);
-    height: clamp(160px, 42vw, 240px);
+    width: clamp(200px, 56vw, 320px);
+    height: clamp(200px, 56vw, 320px);
     margin: 20px auto;
     background-color: #f4f4f4;
     border: 2px solid #ddd;

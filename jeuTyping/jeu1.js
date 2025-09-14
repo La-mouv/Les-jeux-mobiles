@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const scoreDisplay = document.getElementById('score');
     const timerDisplay = document.getElementById('timer');
     const playerName = sessionStorage.getItem('playerName') || 'Sans pseudo';
+    const startButton = document.getElementById('startButton');
     playerNameDisplay.textContent = playerName;
     const allWords = [
         "Teriyaki", "Tikka", "Thon", "BMT", "Brooklyn", "Chipotle", "Southwest", "Meatball", "Sandwich", "Artists", "Footlong", "Fresh", "Cookies Lovers", "Six-inch", "Veggie", "Bacon", "Ranch", "Sweet Onion", "Parmesan", "Jalapen", "Tomates", "Brownie", "BBQ", "1965", "Connecticut", "Peter Buck", "Fred", "Subway", "Fred DeLuca", "Sub Like Me", "Steak & Cheese", "Pastrami", "Bridgeport", "sous-marin", "Pete's Super Submarine", "Convention 2025", "Puy du Fou", "GP Explorer" ];    
@@ -109,7 +110,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
             score = 0;
             typingInput.disabled = false;
             typingInput.value = '';
-            typingInput.focus();
+            // Focus synchrone suite à un geste utilisateur pour ouvrir le clavier mobile
+            try { typingInput.focus({ preventScroll: true }); } catch(_) { try { typingInput.focus(); } catch(__) {} }
+            try { typingInput.setSelectionRange(typingInput.value.length, typingInput.value.length); } catch(_) {}
+            // Ne pas retirer le bouton du flux pour éviter les décalages
+            try { if (startButton) startButton.style.visibility = 'hidden'; } catch(_) {}
             updateWordToType();
             scoreDisplay.textContent = score;
         }
@@ -129,6 +134,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
             moveToNextWord();
         }
     });
+
+    // Bouton démarrer: clique/touch lance le jeu et déclenche le focus (clavier mobile)
+    if (startButton) {
+        startButton.addEventListener('click', startGame);
+        startButton.addEventListener('touchend', startGame, { passive: true });
+        startButton.addEventListener('pointerup', startGame);
+    }
 
     // Désactiver le champ de saisie au début
     typingInput.disabled = true;

@@ -17,7 +17,8 @@
     </div>
     <div id="gameContainer">
         <p id="wordToType">Mot à taper</p>
-        <input type="text" id="typingInput" placeholder="Commencez à taper ici...">
+        <input type="text" id="typingInput" placeholder="Commencez à taper ici..."
+               inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="none" enterkeyhint="go">
         <button id="startButton">Commencer en appuyant sur Entrée</button>
         <p>Score: <span id="score"></span></p>
         <div id="timer">Temps restant : 5s</div>
